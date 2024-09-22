@@ -1,49 +1,64 @@
-# Starting kit on the bike counters dataset
+Description
+Cette application Bike Counter est une interface web développée avec Streamlit pour visualiser des données de comptage de vélos sur le boulevard de Sébastopol à Paris. Elle permet d'afficher les tendances et statistiques des passages de vélos sur une période donnée.
 
-Read the instruction from the [Kaggle challenge](https://www.kaggle.com/competitions/mdsb-2023/overview).
+Démarche de création
+1. Développement de l'application Streamlit
+L'application a été développée à l'aide de Streamlit, un framework simple et rapide pour créer des interfaces utilisateur web en Python. Voici les étapes principales du développement :
 
-### Download the data
+Lecture et analyse des données de comptage de vélos (fichier CSV).
+Filtrage des données selon des critères spécifiques (dates, lieux).
+Création de visualisations interactives avec Matplotlib et Pandas.
+Construction d'une interface utilisateur avec des contrôles permettant de choisir les dates, le lieu et d'autres paramètres.
+Le fichier principal de l'application est app.py, qui contient tout le code pour charger les données et générer les visualisations.
 
-Download the data from Kaggle and put the files into the `data` folder.
+2. Gestion des dépendances
+Un fichier requirements.txt a été créé pour lister toutes les bibliothèques Python nécessaires au fonctionnement de l'application, comme Streamlit, Pandas, et Matplotlib. Cela permet de facilement installer les dépendances avec pip :
 
-Note that your goal is to train your model on `train.parquet` (and eventual external datasets)
-and then make predictions on `final_test.parquet`.
+bash
+Copier le code
+pip install -r requirements.txt
+3. Conteneurisation avec Docker
+Pour rendre l'application facilement portable et déployable, nous l'avons conteneurisée avec Docker. Cela permet de s'assurer que l'application s'exécute de manière cohérente, indépendamment de l'environnement dans lequel elle est déployée.
 
-### Install the local environment
+Étapes de conteneurisation :
+Création d'un Dockerfile qui spécifie l'environnement et les étapes de construction de l'image Docker.
+L'image est basée sur Python et installe toutes les dépendances listées dans requirements.txt.
+L'application Streamlit est configurée pour s'exécuter dans le conteneur et être accessible depuis un port défini (par exemple, 8501).
+Le Dockerfile ressemble à ceci :
 
-To run the notebook locally you will need the dependencies listed
-in `requirements.txt`. 
+Dockerfile
+Copier le code
+# Utiliser une image de base Python
+FROM python:3.9-slim
 
-It is recommended to create a new virtual environement for this project. For instance, with conda,
-```bash
-conda create -n bikes-count python=3.10
-conda activate bikes-count
-```
+# Définir le répertoire de travail
+WORKDIR /app
 
-You can install the dependencies with the following command-line:
+# Copier les fichiers de l'application dans le conteneur
+COPY . /app
 
-```bash
-pip install -r requirements.txt -U
-```
+# Installer les dépendances
+RUN pip install --no-cache-dir -r requirements.txt
 
-### The starter notebook
+# Exposer le port sur lequel Streamlit fonctionnera
+EXPOSE 8501
 
-Get started on this challenge with the `bike_counters_starting_kit.ipynb` notebook.
-This notebook is just a helper to show you different methods and ideas useful for your
-exploratory notebooks and your submission script.
+# Démarrer l'application Streamlit
+CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+4. Lancement du conteneur
+Pour exécuter l'application dans un conteneur Docker, les étapes suivantes ont été suivies :
 
-Launch the notebook using:
+Construire l'image Docker :
 
-```bash
-jupyter lab bike_counters_starting_kit.ipynb
-```
+bash
+Copier le code
+docker build -t bike_counter_app .
+Exécuter l'image en exposant le port de l'application :
 
-### Submissions
+bash
+Copier le code
+docker run -p 8501:8501 bike_counter_app
+L'application est maintenant accessible via un navigateur à l'adresse http://localhost:8501.
 
-Upload your script file `.py` to Kaggle using the Kaggle interface directly.
-The platform will then execute your code to generate your submission csv file,
-and compute your score.
-
-Note that your submission .csv file must have the columns "Id" and "bike_log_count",
-and be of the same length as `final_test.parquet`.
-ajout test
+Conclusion
+Cette démarche permet de facilement développer, tester et déployer une application web de visualisation de données en Python avec Streamlit et Docker, rendant ainsi l'application portable et simple à partager ou déployer dans des environnements variés.
